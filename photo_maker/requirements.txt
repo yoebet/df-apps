@@ -10,7 +10,3 @@ safetensors
 omegaconf
 peft
 gradio>=4.0.0
-
-
-flask
-python-dotenv
