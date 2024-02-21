@@ -1,0 +1,58 @@
+{
+  "task_id": {
+    "required": true
+  },
+  "sub_dir": {
+    "required": true
+  },
+  "image_urls": {
+    "required": true,
+    "need_change_url": true,
+    "default_ext": "jpg",
+    "default_file_name": "input-image"
+  },
+  "prompt": {
+    "required": true
+  },
+  "negative_prompt": " nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry",
+  "aspect_ratio_name": {
+    "default": "1024_1024",
+    "choices": [
+      "1024_1024",
+      "1024_680",
+      "680_1024",
+      "1024_768",
+      "768_1024",
+      "1024_576",
+      "576_1024",
+      "1024_640",
+      "640_1024",
+      "1024_424",
+      "1024_552",
+      "1024_744",
+      "1024_720",
+      "720_1024"
+    ]
+  },
+  "style_name":{
+    "default": "photographic",
+    "choices": [
+      "cinematic",
+      "disney_charactor",
+      "digital_art",
+      "photographic",
+      "fantasy_art",
+      "neonpunk",
+      "enhance",
+      "comic_book",
+      "lowpoly",
+      "line_art"
+    ]
+  },
+  "num_steps": 50,
+  "style_strength_ratio": 20,
+  "num_outputs": 1,
+  "guidance_scale": 5,
+  "seed": 1332721256,
+  "run_mode": "sync"
+}
