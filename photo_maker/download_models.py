@@ -5,8 +5,8 @@ from photomaker import PhotoMakerStableDiffusionXLPipeline
 os.environ["HTTP_PROXY"] = "http://192.168.5.188:7890"
 os.environ["HTTPS_PROXY"] = "http://192.168.5.188:7890"
 os.environ["NO_PROXY"] = 'localhost,127.0.0.1,192.168.5.188'
-if not os.path.exists('./checkpoints/photomaker-v1.bin'):
-    hf_hub_download(repo_id="TencentARC/PhotoMaker", local_dir='./checkpoints', filename="photomaker-v1.bin", repo_type="model")
+if not os.path.exists('checkpoints/photomaker-v1.bin'):
+    hf_hub_download(repo_id="TencentARC/PhotoMaker", local_dir='checkpoints', filename="photomaker-v1.bin", repo_type="model")
     print('photomaker-v1.bin 下载成功')
 else:
     print('photomaker-v1.bin 已经存在')
@@ -14,7 +14,7 @@ else:
 PhotoMakerStableDiffusionXLPipeline.from_pretrained(
     'SG161222/RealVisXL_V3.0',
     torch_dtype=torch.bfloat16,
-    cache_dir='./checkpoints',
+    cache_dir='checkpoints',
     use_safetensors=True,
     variant="fp16"
 )

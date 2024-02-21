@@ -1,6 +1,5 @@
 import torch
 import numpy as np
-import random
 import os
 import sys
 
@@ -8,13 +7,12 @@ from diffusers.utils import load_image
 from diffusers import EulerDiscreteScheduler
 
 from huggingface_hub import hf_hub_download
-import spaces
 import gradio as gr
 
 from photomaker import PhotoMakerStableDiffusionXLPipeline
 
-from utils.style_template import styles
-from utils.aspect_ratio_template import aspect_ratios
+from photo_maker.style_template import styles
+from photo_maker.aspect_ratio_template import aspect_ratios
 
 # global variable
 base_model_path = 'SG161222/RealVisXL_V3.0'
@@ -35,7 +33,7 @@ ASPECT_RATIO_LABELS = list(aspect_ratios)
 DEFAULT_ASPECT_RATIO = ASPECT_RATIO_LABELS[0]
 
 # download PhotoMaker checkpoint to cache
-photomaker_ckpt = hf_hub_download(repo_id="TencentARC/PhotoMaker",destination_path='./checkpoints', filename="photomaker-v1.bin", repo_type="model")
+photomaker_ckpt = hf_hub_download(repo_id="TencentARC/PhotoMaker", destination_path='checkpoints', filename="photomaker-v1.bin", repo_type="model")
 
 if device == "mps":
     torch_dtype = torch.float16

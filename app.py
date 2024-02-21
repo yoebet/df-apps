@@ -32,7 +32,7 @@ def before_request_callback():
 
 @app.route('/<path:filename>')
 def serve_file(filename):
-    root_dir = './examples'
+    root_dir = 'photo_maker/examples'
     return send_from_directory(root_dir, filename)
 
 def trans_unit(bytes, unit):
