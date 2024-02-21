@@ -11,3 +11,4 @@ nohup.out*
 out/
 requirements-v.txt
 /tasks/
+/examples/
