@@ -18,7 +18,7 @@ import logging
 from PIL import Image
 import numpy as np
 
-from photo_maker.inference import inference
+from photo_maker.inference import inference as pm_inference
 from utils.params import Params
 from utils.dirs import get_task_dir
 
@@ -91,7 +91,7 @@ def run_sync( params: Params,*, logger, result_file: str, result, log_file: str)
             try:
                 result['inference_start_at'] = datetime.now().isoformat()
 
-                inference(params)
+                pm_inference(params)
 
                 result['success'] = True
                 result['cropped_image_file'] = os.path.basename(params.cropped_image_path)
