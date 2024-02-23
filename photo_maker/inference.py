@@ -27,14 +27,6 @@ def inference(params:Params):
     else:
         device = "cpu"
 
-    MAX_SEED = np.iinfo(np.int32).max
-    STYLE_NAMES = list(styles.keys())
-    DEFAULT_STYLE_NAME = "Photographic (Default)"
-    ASPECT_RATIO_LABELS = list(aspect_ratios)
-    DEFAULT_ASPECT_RATIO = ASPECT_RATIO_LABELS[0]
-
-    # download PhotoMaker checkpoint to cache
-
     pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
         base_model_path,
         cache_dir='./checkpoints',
@@ -56,7 +48,9 @@ def inference(params:Params):
     # pipe.set_adapters(["photomaker"], adapter_weights=[1.0])
     pipe.fuse_lora()
 
-
+    def apply_style(style_name: str, positive: str, negative: str = ""):
+        p, n = styles.get(style_name)
+        return p.replace("{prompt}", positive), n + ' ' + negative
     def generate_image(image_urls:list, prompt, negative_prompt, aspect_ratio_name, style_name, num_steps, style_strength_ratio, num_outputs, guidance_scale, seed):
         # check the trigger word
         image_token_id = pipe.tokenizer.convert_tokens_to_ids(pipe.trigger_word)
@@ -101,8 +95,11 @@ def inference(params:Params):
             guidance_scale=guidance_scale,
         ).images
         return images
-
-    def apply_style(style_name: str, positive: str, negative: str = ""):
-        p, n = styles.get(style_name, styles[DEFAULT_STYLE_NAME])
-        return p.replace("{prompt}", positive), n + ' ' + negative
+        images=generate_image(params.image_urls, params.prompt, params.negative_prompt, params.aspect_ratio_name, params.style_name, params.num_steps, params.style_strength_ratio, params.num_outputs, params.guidance_scale, params.seed)
+        os.makedirs(args.task_dir, exist_ok=True)
+        out_puts=[]
+        for idx, image in enumerate(images):
+            out_puts.append(f"output_{idx:02d}.png")
+            image.save(os.path.join(args.task_dir, f"output_{idx:02d}.png"))
+        setattr(params, 'output_image_path', out_puts)
 

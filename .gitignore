@@ -11,5 +11,5 @@ nohup.out*
 out/
 requirements-v.txt
 /tasks/
-/photo_maker/examples/
+/examples/
 /photo_maker/checkpoints/
