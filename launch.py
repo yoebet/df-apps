@@ -50,28 +50,7 @@ def verify_url(url):
     return True
 
 
-def download(resource_url, target_dir, filename, default_ext):
-    if not resource_url.startswith('http'):
-        raise Exception(f'must be url: {resource_url}')
-    # if not verify_url(resource_url):
-    #     raise Exception(f'local resource not allowed')
-    resource_path = urlparse(resource_url).path
-    resource_name = os.path.basename(resource_path)
-    base_name, ext = os.path.splitext(resource_name)
-    if filename is None:
-        filename = base_name
-    if ext is None:
-        ext = default_ext
-    elif ext == '.jfif':
-        ext = '.jpg'
-    if ext is not None:
-        filename = f'{filename}{ext}'
 
-    full_path = f'{target_dir}/{filename}'
-    with requests.get(resource_url, stream=True) as res:
-        with open(full_path, 'wb') as f:
-            shutil.copyfileobj(res.raw, f)
-    return full_path
 
 
 def tf_log_img(writer: SummaryWriter, tag, image_path, global_step=0):
