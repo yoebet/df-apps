@@ -43,14 +43,14 @@ def build_params(args, config='./arg_config.json'):
                 setattr(args, key, local_url)
             elif isinstance(url_str, list):
                 local_url_strs=[]
-                for url_ in url_str:
-                    local_url_strs.append(download(url_, args.task_dir, value['default_file_name'] if 'default_file_name' in value else None,value['default_ext']))
+                for index, url_ in enumerate(url_str):
+                    local_url_strs.append(download(url_, args.task_dir, f"{value['default_file_name']}_{index}",value['default_ext']))
                 setattr(args, key, local_url_strs)
             if 'sys_name' in value:
                 setattr(args, value['sys_name'], getattr(args, key))
         elif isinstance(value, bool):
                 str_val = getattr(args, key)
-                if str_val == '1' or str_val.lower() == 'ture':
+                if str_val==True or str_val == '1' or str_val.lower() == 'ture':
                     setattr(args, key, True)
                 else:
                     setattr(args, key, False)

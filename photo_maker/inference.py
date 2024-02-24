@@ -14,12 +14,13 @@ from photomaker import PhotoMakerStableDiffusionXLPipeline
 from photo_maker.style_template import styles
 from photo_maker.aspect_ratio_template import aspect_ratios
 from utils.params import Params
-
-
+current_file_path = os.path.abspath(__file__)
+current_directory =os.path.dirname(current_file_path)
+arg_config=f'{current_directory}/arg_config.json'
 def inference(params:Params):
 
     base_model_path = 'SG161222/RealVisXL_V3.0'
-    photomaker_ckpt = './checkpoints/photomaker-v1.bin'
+    photomaker_ckpt = f'{current_directory}/checkpoints/photomaker-v1.bin'
     if hasattr(params, 'device'):
         device = params.device
     elif torch.cuda.is_available():
@@ -29,7 +30,7 @@ def inference(params:Params):
 
     pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
         base_model_path,
-        cache_dir='./checkpoints',
+        cache_dir=f'{current_directory}/checkpoints',
         torch_dtype=torch.bfloat16,
         use_safetensors=True,
         variant="fp16",
@@ -95,11 +96,11 @@ def inference(params:Params):
             guidance_scale=guidance_scale,
         ).images
         return images
-        images=generate_image(params.image_urls, params.prompt, params.negative_prompt, params.aspect_ratio_name, params.style_name, params.num_steps, params.style_strength_ratio, params.num_outputs, params.guidance_scale, params.seed)
-        os.makedirs(args.task_dir, exist_ok=True)
-        out_puts=[]
-        for idx, image in enumerate(images):
-            out_puts.append(f"output_{idx:02d}.png")
-            image.save(os.path.join(args.task_dir, f"output_{idx:02d}.png"))
-        setattr(params, 'output_image_path', out_puts)
+    images=generate_image(params.image_urls, params.prompt, params.negative_prompt, params.aspect_ratio_name, params.style_name, params.num_steps, params.style_strength_ratio, params.num_outputs, params.guidance_scale, params.seed)
+    os.makedirs(params.task_dir, exist_ok=True)
+    out_puts=[]
+    for idx, image in enumerate(images):
+        out_puts.append(f"output_{idx:02d}.png")
+        image.save(os.path.join(params.task_dir, f"output_{idx:02d}.png"))
+    setattr(params, 'output_images_path', out_puts)
 

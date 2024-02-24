@@ -75,14 +75,14 @@ def launch_task():
     task = Params(task_params)
     launch_options = Params(launch_params)
 
-    try:
-        launch_result = launch(app.config, task, launch_options, logger=logger)
-    except Exception as e:
-        logger.error(e)
-        return jsonify({
-            'success': False,
-            'error_message': f"[launch] {type(e)}: {e}"
-        })
+    # try:
+    launch_result = launch(app.config, task, launch_options, logger=logger)
+    # except Exception as e:
+    #     logger.error(e)
+    #     return jsonify({
+    #         'success': False,
+    #         'error_message': f"[launch] {type(e)}: {e}"
+    #     })
 
     return jsonify(launch_result)
 

@@ -19,7 +19,9 @@ from PIL import Image
 import numpy as np
 
 from photo_maker.inference import inference as pm_inference
-from utils.params import Params
+from photo_maker.inference import arg_config as pm_arg_config
+
+from utils.params import Params, build_params
 from utils.dirs import get_task_dir
 
 logging.basicConfig(
@@ -69,14 +71,9 @@ def run_sync( params: Params,*, logger, result_file: str, result, log_file: str)
         with redirect_stdout(lf), redirect_stderr(lf):
             try:
                 result['inference_start_at'] = datetime.now().isoformat()
-
                 pm_inference(params)
-
                 result['success'] = True
-                result['cropped_image_file'] = os.path.basename(params.cropped_image_path)
-                result['output_video_file'] = os.path.basename(params.output_video_path)
-                # result['output_video_duration'] = params.output_video_duration
-
+                result['output_images_path'] =  params.output_images_path
             except Exception as e:
                 print(str(e), file=sys.stderr)
                 traceback.print_exc()
@@ -94,27 +91,7 @@ def run_sync( params: Params,*, logger, result_file: str, result, log_file: str)
     torch.cuda.empty_cache()
     return result
 
-def build_params(args, config='./arg_config.json'):
-    with open(config, 'r') as file:
-        config_dict = json.load(file)
-    for key, value in config_dict.items():
-        if not hasattr(args, key):
-            if not isinstance(value, dict):
-                setattr(args, key, value)
-            elif 'default' in value:
-                setattr(args, key, value['default'])
-        elif isinstance(value, dict) and 'need_change_url' in value:
-            local_url = download(getattr(args,key), args.task_dir, value['default_file_name'] if 'default_file_name' in value else None,value['default_ext'])
-            setattr(args, key, local_url)
-            if 'sys_name' in value:
-                setattr(args, value['sys_name'], local_url)
-        elif isinstance(value, bool):
-                str_val = getattr(args, key)
-                if str_val == '1' or str_val.lower() == 'ture':
-                    setattr(args, key, True)
-                else:
-                    setattr(args, key, False)
-    return args
+
 def launch(config, task: Params, launch_options: Params, logger=None):
     if logger is None:
         logger = logging.getLogger('launch')
@@ -146,7 +123,7 @@ def launch(config, task: Params, launch_options: Params, logger=None):
     task_dir = get_task_dir(TASKS_DIR, task.task_id, task.sub_dir)
     os.makedirs(task_dir, exist_ok=True)
     params.task_dir = task_dir
-    params = build_params(params)
+    params = build_params(params,pm_arg_config)
     json.dump(vars(params), open(f'{task_dir}/params.json', 'w'), indent=2)
 
     result_file = os.path.join(task_dir, 'result.json')
@@ -163,21 +140,21 @@ def launch(config, task: Params, launch_options: Params, logger=None):
     args = (params)
     kwargs = {'result': result, 'result_file': result_file, 'log_file': log_file, 'logger': logger}
 
-    try:
-        if params.run_mode == 'sync':
-            res = run_sync(params, **kwargs)
-        elif params.run_mode == 'process':
-            process = multiprocessing.Process(target=run_sync, args=args, kwargs=kwargs)
-            process.start()
-            res['pid'] = process.pid
-        else:  # thread
-            thread_name = f'thread_{params.task_id}_{random.randint(1000, 9990)}'
-            # res['thread_name'] = thread_name
-            thread = Thread(target=run_sync, args=args, kwargs=kwargs, name=thread_name)
-            thread.start()
-    except Exception as e:
-        logger.error(e)
-        res['success'] = False
-        res['error_message'] = str(e)
+    # try:
+    if params.run_mode == 'sync':
+        res = run_sync(params, **kwargs)
+    elif params.run_mode == 'process':
+        process = multiprocessing.Process(target=run_sync, args=args, kwargs=kwargs)
+        process.start()
+        res['pid'] = process.pid
+    else:  # thread
+        thread_name = f'thread_{params.task_id}_{random.randint(1000, 9990)}'
+        # res['thread_name'] = thread_name
+        thread = Thread(target=run_sync, args=args, kwargs=kwargs, name=thread_name)
+        thread.start()
+    # except Exception as e:
+    #     logger.error(e)
+    #     res['success'] = False
+    #     res['error_message'] = str(e)
 
     return res
