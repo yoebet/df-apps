@@ -27,13 +27,14 @@ def before_request_callback():
     if path != '/':
         auth = request.headers.get('AUTHORIZATION')
         if not auth == app.config['AUTHORIZATION']:
-            return
             abort(400)
+
 
 @app.route('/<path:filename>')
 def serve_file(filename):
     root_dir = 'examples'
     return send_from_directory(root_dir, filename)
+
 
 def trans_unit(bytes, unit):
     if unit is None:

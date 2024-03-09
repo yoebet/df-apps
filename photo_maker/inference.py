@@ -6,19 +6,18 @@ import sys
 from diffusers.utils import load_image
 from diffusers import EulerDiscreteScheduler
 
-from huggingface_hub import hf_hub_download
-import gradio as gr
-
 from photomaker import PhotoMakerStableDiffusionXLPipeline
 
 from photo_maker.style_template import styles
 from photo_maker.aspect_ratio_template import aspect_ratios
 from utils.params import Params
-current_file_path = os.path.abspath(__file__)
-current_directory =os.path.dirname(current_file_path)
-arg_config=f'{current_directory}/arg_config.json'
-def inference(params:Params):
 
+current_file_path = os.path.abspath(__file__)
+current_directory = os.path.dirname(current_file_path)
+arg_config = f'{current_directory}/arg_config.json'
+
+
+def inference(params: Params):
     base_model_path = 'SG161222/RealVisXL_V3.0'
     photomaker_ckpt = f'{current_directory}/checkpoints/photomaker-v1.bin'
     if hasattr(params, 'device'):
@@ -52,15 +51,18 @@ def inference(params:Params):
     def apply_style(style_name: str, positive: str, negative: str = ""):
         p, n = styles.get(style_name)
         return p.replace("{prompt}", positive), n + ' ' + negative
-    def generate_image(image_urls:list, prompt, negative_prompt, aspect_ratio_name, style_name, num_steps, style_strength_ratio, num_outputs, guidance_scale, seed):
+
+    def generate_image(image_urls: list, prompt, negative_prompt, aspect_ratio_name, style_name, num_steps,
+                       style_strength_ratio, num_outputs, guidance_scale, seed):
         # check the trigger word
         image_token_id = pipe.tokenizer.convert_tokens_to_ids(pipe.trigger_word)
         input_ids = pipe.tokenizer.encode(prompt)
         if image_token_id not in input_ids:
-            raise gr.Error(f"Cannot find the trigger word '{pipe.trigger_word}' in text prompt! Please refer to step 2️⃣")
+            raise Exception(
+                f"Cannot find the trigger word '{pipe.trigger_word}' in text prompt! Please refer to step 2️⃣")
 
         if input_ids.count(image_token_id) > 1:
-            raise gr.Error(f"Cannot use multiple trigger words '{pipe.trigger_word}' in text prompt!")
+            raise Exception(f"Cannot use multiple trigger words '{pipe.trigger_word}' in text prompt!")
 
         # determine output dimensions by the aspect ratio
         output_w, output_h = aspect_ratios[aspect_ratio_name]
@@ -68,8 +70,6 @@ def inference(params:Params):
 
         # apply the style template
         prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
-
-
 
         input_id_images = []
         for img in image_urls:
@@ -96,11 +96,13 @@ def inference(params:Params):
             guidance_scale=guidance_scale,
         ).images
         return images
-    images=generate_image(params.image_urls, params.prompt, params.negative_prompt, params.aspect_ratio_name, params.style_name, params.num_steps, params.style_strength_ratio, params.num_outputs, params.guidance_scale, params.seed)
+
+    images = generate_image(params.image_urls, params.prompt, params.negative_prompt, params.aspect_ratio_name,
+                            params.style_name, params.num_steps, params.style_strength_ratio, params.num_outputs,
+                            params.guidance_scale, params.seed)
     os.makedirs(params.task_dir, exist_ok=True)
-    out_puts=[]
+    out_puts = []
     for idx, image in enumerate(images):
         out_puts.append(f"output_{idx:02d}.png")
         image.save(os.path.join(params.task_dir, f"output_{idx:02d}.png"))
     setattr(params, 'output_images_path', out_puts)
-

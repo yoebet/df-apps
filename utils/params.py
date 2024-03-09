@@ -27,6 +27,8 @@ def download(resource_url, target_dir, filename, default_ext):
         with open(full_path, 'wb') as f:
             shutil.copyfileobj(res.raw, f)
     return full_path
+
+
 def build_params(args, config='./arg_config.json'):
     with open(config, 'r') as file:
         config_dict = json.load(file)
@@ -37,32 +39,34 @@ def build_params(args, config='./arg_config.json'):
             elif 'default' in value:
                 setattr(args, key, value['default'])
         elif isinstance(value, dict) and 'need_change_url' in value:
-            url_str=getattr(args, key)
+            url_str = getattr(args, key)
             if isinstance(url_str, str):
-                local_url = download(url_str, args.task_dir, value['default_file_name'] if 'default_file_name' in value else None, value['default_ext'])
+                local_url = download(url_str, args.task_dir,
+                                     value['default_file_name'] if 'default_file_name' in value else None,
+                                     value['default_ext'])
                 setattr(args, key, local_url)
             elif isinstance(url_str, list):
-                local_url_strs=[]
+                local_url_strs = []
                 for index, url_ in enumerate(url_str):
-                    local_url_strs.append(download(url_, args.task_dir, f"{value['default_file_name']}_{index}",value['default_ext']))
+                    local_url_strs.append(
+                        download(url_, args.task_dir, f"{value['default_file_name']}_{index}", value['default_ext']))
                 setattr(args, key, local_url_strs)
             if 'sys_name' in value:
                 setattr(args, value['sys_name'], getattr(args, key))
         elif isinstance(value, bool):
-                str_val = getattr(args, key)
-                if str_val==True or str_val == '1' or str_val.lower() == 'ture':
-                    setattr(args, key, True)
-                else:
-                    setattr(args, key, False)
+            str_val = getattr(args, key)
+            if str_val == True or str_val == '1' or str_val.lower() == 'ture':
+                setattr(args, key, True)
+            else:
+                setattr(args, key, False)
     return args
 
 
-
 class Params:
-    def __init__(self,param):
+    def __init__(self, param):
         for key, value in param.items():
-            setattr(self,key,value)
+            setattr(self, key, value)
 
-    def merge(self,other):
+    def merge(self, other):
         self.__dict__.update(other.__dict__)
         return self

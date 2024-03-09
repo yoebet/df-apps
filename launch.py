@@ -52,9 +52,6 @@ def verify_url(url):
     return True
 
 
-
-
-
 def tf_log_img(writer: SummaryWriter, tag, image_path, global_step=0):
     img = Image.open(image_path)
     if not img.mode == "RGB":
@@ -63,7 +60,7 @@ def tf_log_img(writer: SummaryWriter, tag, image_path, global_step=0):
     writer.add_image(tag, np_image, global_step, dataformats="HWC")
 
 
-def run_sync( params: Params,*, logger, result_file: str, result, log_file: str):
+def run_sync(params: Params, *, logger, result_file: str, result, log_file: str):
     if result is None:
         result = {}
 
@@ -73,7 +70,7 @@ def run_sync( params: Params,*, logger, result_file: str, result, log_file: str)
                 result['inference_start_at'] = datetime.now().isoformat()
                 pm_inference(params)
                 result['success'] = True
-                result['output_images_path'] =  params.output_images_path
+                result['output_images_path'] = params.output_images_path
             except Exception as e:
                 print(str(e), file=sys.stderr)
                 traceback.print_exc()
@@ -123,7 +120,7 @@ def launch(config, task: Params, launch_options: Params, logger=None):
     task_dir = get_task_dir(TASKS_DIR, task.task_id, task.sub_dir)
     os.makedirs(task_dir, exist_ok=True)
     params.task_dir = task_dir
-    params = build_params(params,pm_arg_config)
+    params = build_params(params, pm_arg_config)
     json.dump(vars(params), open(f'{task_dir}/params.json', 'w'), indent=2)
 
     result_file = os.path.join(task_dir, 'result.json')
@@ -140,7 +137,6 @@ def launch(config, task: Params, launch_options: Params, logger=None):
     args = (params)
     kwargs = {'result': result, 'result_file': result_file, 'log_file': log_file, 'logger': logger}
 
-    # try:
     if params.run_mode == 'sync':
         res = run_sync(params, **kwargs)
     elif params.run_mode == 'process':
@@ -152,9 +148,5 @@ def launch(config, task: Params, launch_options: Params, logger=None):
         # res['thread_name'] = thread_name
         thread = Thread(target=run_sync, args=args, kwargs=kwargs, name=thread_name)
         thread.start()
-    # except Exception as e:
-    #     logger.error(e)
-    #     res['success'] = False
-    #     res['error_message'] = str(e)
 
     return res
