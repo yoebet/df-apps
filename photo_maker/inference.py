@@ -18,8 +18,6 @@ arg_config = f'{current_directory}/arg_config.json'
 
 
 def inference(params: Params):
-    base_model_path = 'SG161222/RealVisXL_V3.0'
-    photomaker_ckpt = f'{current_directory}/checkpoints/photomaker-v1.bin'
     if hasattr(params, 'device'):
         device = params.device
     elif torch.cuda.is_available():
@@ -28,18 +26,16 @@ def inference(params: Params):
         device = "cpu"
 
     pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
-        base_model_path,
-        cache_dir=f'{current_directory}/checkpoints',
+        'SG161222/RealVisXL_V3.0',
         torch_dtype=torch.bfloat16,
         use_safetensors=True,
-        variant="fp16",
-        local_files_only=True
+        variant="fp16"
     ).to(device)
 
     pipe.load_photomaker_adapter(
-        os.path.dirname(photomaker_ckpt),
+        "TencentARC/PhotoMaker",
         subfolder="",
-        weight_name=os.path.basename(photomaker_ckpt),
+        weight_name="photomaker-v1.bin",
         trigger_word="img"
     )
     pipe.id_encoder.to(device)
@@ -59,10 +55,10 @@ def inference(params: Params):
         input_ids = pipe.tokenizer.encode(prompt)
         if image_token_id not in input_ids:
             raise Exception(
-                f"Cannot find the trigger word '{pipe.trigger_word}' in text prompt! Please refer to step 2️⃣")
+                f"Cannot find the trigger word '{pipe.trigger_word}' in text prompt")
 
         if input_ids.count(image_token_id) > 1:
-            raise Exception(f"Cannot use multiple trigger words '{pipe.trigger_word}' in text prompt!")
+            raise Exception(f"Cannot use multiple trigger words '{pipe.trigger_word}' in text prompt")
 
         # determine output dimensions by the aspect ratio
         output_w, output_h = aspect_ratios[aspect_ratio_name]

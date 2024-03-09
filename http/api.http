@@ -1,23 +1,23 @@
 
-### root
-#GET {{base}}/
-#Accept: application/json
+## root
+GET {{base}}/
+Accept: application/json
 
 
 ### check_mem_all
 
-#GET {{base}}/check_mem_all/available?unit=G
-#Content-Type: application/json
-#Accept: application/json
-#Authorization: {{auth}}
+GET {{base}}/check_mem_all/available?unit=G
+Content-Type: application/json
+Accept: application/json
+Authorization: {{auth}}
 
 
 ### check_mem
 
-#GET {{base}}/check_mem/0?unit=G
-#Content-Type: application/json
-#Accept: application/json
-#Authorization: {{auth}}
+GET {{base}}/check_mem/6?unit=G
+Content-Type: application/json
+Accept: application/json
+Authorization: {{auth}}
 
 
 
@@ -30,14 +30,19 @@ Authorization: {{auth}}
 
 {
   "task": {
-    "task_id": "ag2sf",
-    "sub_dir": "test2",
-    "image_urls":["http://127.0.0.1:8000/newton_man/newton_0.jpg","http://127.0.0.1:8000/newton_man/newton_1.jpg","http://127.0.0.1:8000/newton_man/newton_3.jpg"],
-    "prompt":"A photo of a man img",
-     "num_outputs": 2
+    "task_id": "newton1",
+    "sub_dir": "test1",
+    "image_urls": [
+      "https://github.com/TencentARC/PhotoMaker/blob/main/examples/newton_man/newton_0.jpg?raw=true",
+      "https://github.com/TencentARC/PhotoMaker/blob/main/examples/newton_man/newton_1.jpg?raw=true",
+      "https://github.com/TencentARC/PhotoMaker/blob/main/examples/newton_man/newton_2.png?raw=true",
+      "https://github.com/TencentARC/PhotoMaker/blob/main/examples/newton_man/newton_3.jpg?raw=true"
+    ],
+    "prompt": "A photo of a man img",
+    "num_outputs": 2
   },
   "launch": {
-
+    "device_index": 6
   }
 }
 
@@ -45,13 +50,13 @@ Authorization: {{auth}}
 
 ### task - status
 
-#POST {{base}}/task/ss/status
-#Content-Type: application/json
-#Accept: application/json
-#Authorization: {{auth}}
-#
-#{
-#  "root_pid": "9417199",
-#  "sub_dir": "test1"
-#}
-#
+POST {{base}}/task/ss/status
+Content-Type: application/json
+Accept: application/json
+Authorization: {{auth}}
+
+{
+  "root_pid": "9417199",
+  "sub_dir": "test1"
+}
+

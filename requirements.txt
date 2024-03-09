@@ -1,3 +1,10 @@
 torch
 flask
 python-dotenv
+gunicorn
+tensorboard
+accelerate
+torch
+torchvision
+diffusers
+transformers
